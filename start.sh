@@ -46,19 +46,19 @@ LOOPS=0
 
 handle_exit_code() {
 	local exitcode=$1
-	if [ $exitcode -eq 134 ] || [ $exitcode -eq 139 ]; then #SIGABRT/SIGSEGV
+	if [ "$exitcode" -eq 134 ] || [ "$exitcode" -eq 139 ]; then #SIGABRT/SIGSEGV
 		echo ""
 		echo "ERROR: The server process was killed due to a critical error (code $exitcode) which could indicate a problem with PHP."
 		echo "Updating your PHP binary is recommended."
 		echo "If this keeps happening, please open a bug report."
 		echo ""
-	elif [ $exitcode -eq 143 ]; then #SIGKILL, maybe user intervention
+	elif [ "$exitcode" -eq 143 ]; then #SIGKILL, maybe user intervention
 		echo ""
 		echo "WARNING: Server was forcibly killed!"
 		echo "If you didn't kill the server manually, this probably means the server used too much memory and was killed by the system's OOM Killer."
 		echo "Please ensure your system has enough available RAM."
 		echo ""
-	elif [ $exitcode -ne 0 ] && [ $exitcode -ne 137 ]; then #normal exit / SIGTERM
+	elif [ "$exitcode" -ne 0 ] && [ "$exitcode" -ne 137 ]; then #normal exit / SIGTERM
 		echo ""
 		echo "WARNING: Server did not shut down correctly! (code $exitcode)"
 		echo ""
