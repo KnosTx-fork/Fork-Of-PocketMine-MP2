@@ -17,7 +17,7 @@
  * @link http://www.pocketmine.net/
  *
  *
-*/
+ */
 
 declare(strict_types=1);
 
@@ -26,13 +26,10 @@ namespace pocketmine\world\format\io\region;
 use function range;
 
 class RegionLocationTableEntry{
-
-	/** @var int */
-	private $firstSector;
-	/** @var int */
-	private $sectorCount;
-	/** @var int */
-	private $timestamp;
+	private int $firstSector;
+	/** @phpstan-var positive-int */
+	private int $sectorCount;
+	private int $timestamp;
 
 	/**
 	 * @throws \InvalidArgumentException
@@ -65,6 +62,9 @@ class RegionLocationTableEntry{
 		return range($this->getFirstSector(), $this->getLastSector());
 	}
 
+	/**
+	 * @phpstan-return positive-int
+	 */
 	public function getSectorCount() : int{
 		return $this->sectorCount;
 	}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DIR="$(cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
-cd "$DIR"
+cd "$DIR" || { echo "Couldn't change directory to $DIR"; exit 1; }
 
 while getopts "p:f:l" OPTION 2> /dev/null; do
 	case ${OPTION} in
@@ -23,7 +23,7 @@ if [ "$PHP_BINARY" == "" ]; then
 	if [ -f ./bin/php7/bin/php ]; then
 		export PHPRC=""
 		PHP_BINARY="./bin/php7/bin/php"
-	elif [[ ! -z $(type php 2> /dev/null) ]]; then
+	elif [[ -n $(type php 2> /dev/null) ]]; then
 		PHP_BINARY=$(type -p php)
 	else
 		echo "Couldn't find a PHP binary in system PATH or $PWD/bin/php7/bin"
@@ -72,7 +72,7 @@ if [ "$DO_LOOP" == "yes" ]; then
 		if [ ${LOOPS} -gt 0 ]; then
 			echo "Restarted $LOOPS times"
 		fi
-		"$PHP_BINARY" "$POCKETMINE_FILE" $@
+		"$PHP_BINARY" "$POCKETMINE_FILE" "$@"
 		handle_exit_code $?
 		echo "To escape the loop, press CTRL+C now. Otherwise, wait 5 seconds for the server to restart."
 		echo ""
@@ -80,7 +80,7 @@ if [ "$DO_LOOP" == "yes" ]; then
 		((LOOPS++))
 	done
 else
-	"$PHP_BINARY" "$POCKETMINE_FILE" $@
+	"$PHP_BINARY" "$POCKETMINE_FILE" "$@"
 	exitcode=$?
 	handle_exit_code $exitcode
 	exit $exitcode
