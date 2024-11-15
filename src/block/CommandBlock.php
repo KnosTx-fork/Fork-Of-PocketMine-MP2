@@ -2,51 +2,42 @@
 
 namespace pocketmine\block;
 
+use pocketmine\block\tile\Tile;
 use pocketmine\block\Block;
 use pocketmine\block\BlockIdentifier;
-use pocketmine\block\BlockBreakInfo;
+use pocketmine\block\BlockTypeInfo;
+use pocketmine\item\Item;
+use pocketmine\math\Vector3;
 use pocketmine\player\Player;
-use pocketmine\world\World;
 use pocketmine\utils\TextFormat;
-use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\world\World;
 
-class CommandBlock extends Block implements Listener{
-  private string $command = '';
-  private bool $isRepeat = false;
-  private bool $isConditional = false;
-  private array $waitingForCommandInput = [];
+class CommandBlock extends Block
+{
+    private string $command = '';
+    /** @var array<string, self> */
+    private array $waitingForCommandInput = [];
 
-  public function __construct(){
-    parent::__construct(new BlockIdentifier(137, 0), 'Command Block', BlockBreakInfo::indestructible());
-  }
+    public function __construct()
+    {
+        parent::__construct(
+            new BlockIdentifier(137, 0, null), 
+            "Command Block", 
+            new BlockTypeInfo(BlockBreakInfo::indestructible())
+        );
+    }
 
     public function setCommand(string $command): void
     {
         $this->command = $command;
     }
 
-    public function getCommand() : string{
+    public function getCommand(): string
+    {
         return $this->command;
     }
 
-    public function setRepeat(bool $repeat) : void{
-        $this->isRepeat = $repeat;
-    }
-
-    public function isRepeat() : bool{
-        return $this->isRepeat;
-    }
-
-    public function setConditional(bool $conditional): void{
-        $this->isConditional = $conditional;
-    }
-
-    public function isConditional() : bool{
-        return $this->isConditional;
-    }
-  
-  public function executeCommand(World $world, Player $player) : void
+    public function executeCommand(World $world, Player $player): void
     {
         if ($this->command !== '') {
             $world->getServer()->dispatchCommand($player, $this->command);
@@ -56,9 +47,9 @@ class CommandBlock extends Block implements Listener{
         }
     }
 
-    public function onInteract(Player $player) : bool
+    public function onInteract(Item $item, Vector3 $face, Vector3 $clickVector, Player $player, &$returnedItems): bool
     {
-        if (!$player->isOp() || !$player->isCreative()) {
+        if (!$player->hasPermission("pocketmine.commandblock.use") || !$player->isCreative()) {
             $player->sendMessage(TextFormat::RED . 'You don\'t have permission to use the Command Block.');
             return false;
         }
@@ -71,14 +62,9 @@ class CommandBlock extends Block implements Listener{
         return true;
     }
 
-    public function onPlayerChat(PlayerChatEvent $event): void
+    public function onPlayerChat(Player $player, string $message): void
     {
-        $player = $event->getPlayer();
-        $message = $event->getMessage();
-
         if (isset($this->waitingForCommandInput[$player->getName()])) {
-            $event->cancel();
-
             if (strtolower($message) === 'cancel') {
                 unset($this->waitingForCommandInput[$player->getName()]);
                 $player->sendMessage(TextFormat::RED . 'Command Block setup canceled.');
